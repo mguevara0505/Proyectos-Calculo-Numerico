@@ -1,51 +1,94 @@
 import flet as ft
 
-def main(page: ft.Page):
 
-    def convertir_binario(e):
+class ConvertidorNumeros:
+    def __init__(self, page: ft.Page):
+        self.page = page
+        self.campo = None
+        self.resultado = None
+
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.page.title = "Convertidor de números"
+        self.page.bgcolor = "#98D8FF"
+        self.page.fonts = {
+            "Istok Web": "IstokWeb-Regular.ttf"
+        }
+        self.page.theme = ft.Theme(font_family="Istok Web")
+        self.page.dark_theme = ft.Theme(font_family="Istok Web")
+        self.page.window.width = 781
+        self.page.window.height = 456
+
+        self.page.add(self.create_container("Convertidor de números", 32))
+        self.page.add(self.create_container("Elaborado por Mario Guevara", 20))
+        self.page.add(self.create_container("Ingrese un número entero", 16))
+
+        self.campo = ft.TextField(text_size=16, width=550,
+                                  bgcolor="white", border_width="2", border_color="black", color="black")
+        self.page.add(self.center_container(self.campo))
+
+        self.page.add(self.create_button_row([
+            ("Binario", self.convertir_binario),
+            ("Octal", self.convertir_octal),
+            ("Hexadecimal", self.convertir_hexadecimal),
+            ("Terciario", self.conversion_final_terciario),
+            ("Cuaternario", self.conversion_final_cuaternario)
+        ]))
+
+        self.resultado = ft.Text(color="black", size="20")
+        self.page.add(self.center_container(self.resultado, top_padding=20))
+
+        self.page.update()
+
+    def create_container(self, text, size):
+        return ft.Container(
+            content=ft.Text(value=text, font_family="Istok Web", color="black", size=size),
+            alignment=ft.alignment.center
+        )
+
+    def center_container(self, control, top_padding=0):
+        return ft.Container(
+            content=control,
+            alignment=ft.alignment.center,
+            padding=ft.padding.only(top=top_padding)
+        )
+
+    def create_button_row(self, buttons):
+        row_items = [ft.ElevatedButton(label, bgcolor="blue", color="white", on_click=action) for label, action in buttons]
+        return ft.Container(
+            content=ft.Row(controls=row_items),
+            padding=ft.padding.only(left=90)
+        )
+
+    def convertir_binario(self, e):
+        self.convertir_numero(base=2)
+
+    def convertir_octal(self, e):
+        self.convertir_numero(base=8)
+
+    def convertir_hexadecimal(self, e):
+        self.convertir_numero(base=16)
+
+    def convertir_numero(self, base):
         try:
-            decimal = int(campo.value)
-            if decimal == 0:
-                resultado.value = "0"
-                page.update()
-                return
-            binario = ""
-            while decimal > 0:
-                residuo = decimal % 2
-                binario = str(residuo) + binario
-                decimal = decimal // 2
-            resultado.value = "Número convertido a binario: " + binario
-            page.update()
-        except ValueError:
-            resultado.value = "Por favor, ingrese un número entero válido."
-            page.update()
+            decimal = int(self.campo.value)
+            if base == 2:
+                resultado = bin(decimal)[2:]
+            elif base == 8:
+                resultado = oct(decimal)[2:]
+            elif base == 16:
+                resultado = hex(decimal)[2:]
+            else:
+                resultado = "Base no válida"
 
-    def convertir_octal(e):
-        try:
-            decimal = int(campo.value)
-            octal = ""
-            page.update()
-            while decimal > 0:
-                residuo = decimal % 8
-                octal = str(residuo) + octal
-                decimal = decimal // 8
-            resultado.value = "Número convertido a octal: " + octal
-            page.update()
+            self.resultado.value = resultado
+            self.page.update()
         except ValueError:
-            resultado.value = "Por favor, ingrese un número entero válido."
-            page.update()
+            self.resultado.value = "Por favor, ingrese un número entero válido."
+            self.page.update()
 
-    def convertir_hexadecimal(e):
-        try:
-            decimal = int(campo.value)
-            hexa = hex(decimal)[2:]
-            resultado.value = "Número convertido a hexadecimal: " + hexa
-            page.update()
-        except ValueError:
-            resultado.value = "Por favor, ingrese un número entero válido."
-            page.update()
-
-    def convertir_terciario(numero):
+    def convertir_terciario(self, numero):
         if numero == 0:
             return "0"
         digitos = []
@@ -55,13 +98,10 @@ def main(page: ft.Page):
         digitos.reverse()
         return ''.join(map(str, digitos))
 
-    def conversion_final_terciario(e):
-        decimal = int(campo.value)
-        numero_terciario = convertir_terciario(decimal)
-        resultado.value = "Número convertido a terciario: " + numero_terciario
-        page.update()
+    def conversion_final_terciario(self, e):
+        self.convertir_base(3)
 
-    def convertir_cuaternario(numero):
+    def convertir_cuaternario(self, numero):
         if numero == 0:
             return "0"
         digitos = []
@@ -71,65 +111,28 @@ def main(page: ft.Page):
         digitos.reverse()
         return ''.join(map(str, digitos))
 
-    def conversion_final_cuaternario(e):
-        decimal = int(campo.value)
-        numero_cuaternario = convertir_cuaternario(decimal)
-        resultado.value = "Número convertido a cuaternario: " + numero_cuaternario
-        page.update()
+    def conversion_final_cuaternario(self, e):
+        self.convertir_base(4)
 
-    page.title = "Convertidor de números"
-    page.bgcolor = "#98D8FF"
-    page.fonts = {
-        "Istok Web": "IstokWeb-Regular.ttf"
-    }
-    page.theme = ft.Theme(font_family="Istok Web")
-    page.dark_theme = ft.Theme(font_family="Istok Web")
-    page.window.width = 781
-    page.window.height = 456
-    container = ft.Container(
-        content = ft.Text(value="Convertidor de números", font_family="Istok Web", color="black", size="32"),
-        alignment=ft.alignment.center
-    )
-    page.add(container)
-    container2 = ft.Container(
-        content=ft.Text(value="Elaborado por Mario Guevara", font_family="Istok Web", color="black", size="20"),
-        alignment=ft.alignment.center
-    )
-    page.add(container2)
-    container3 = ft.Container(
-        content=ft.Text(value="Ingrese un número entero:", font_family="Istok Web", color="black", size="16"),
-        alignment=ft.alignment.center,
-    )
-    page.add(container3)
-    campo = ft.TextField(text_size=16, width=550, bgcolor="white", border_width="2", border_color="black", color="black")
-    container4 = ft.Container(
-        content=campo,
-        alignment=ft.alignment.center
-    )
-    page.add(container4)
-    binario = ft.ElevatedButton("Convertir a binario", bgcolor="blue", color="white", on_click=convertir_binario)
-    octal = ft.ElevatedButton("Convertir a octal", bgcolor="blue", color="white", on_click=convertir_octal)
-    hexadecimal = ft.ElevatedButton("Convertir a hexadecimal", bgcolor="blue", color="white", on_click=convertir_hexadecimal)
-    row = ft.Row(controls=[binario, octal, hexadecimal])
-    container5 = ft.Container(
-        content=row,
-        padding=ft.padding.only(left=90)
-    )
-    page.add(container5)
-    terciario = ft.ElevatedButton("Convertir a terciario", bgcolor="blue", color="white", on_click = conversion_final_terciario)
-    cuaternario = ft.ElevatedButton("Convertir a cuaternario", bgcolor="blue", color="white", on_click = conversion_final_cuaternario)
-    row2 = ft.Row(controls=[terciario, cuaternario])
-    container6 = ft.Container(
-        content=row2,
-        padding=ft.padding.only(left=170)
-    )
-    page.add(container6)
-    resultado = ft.Text(color="black", size="20")
-    container7 = ft.Container(
-        content=resultado,
-        padding=ft.padding.only(top=20)
-    )
-    page.add(container7)
-    page.update()
+    def convertir_base(self, base):
+        try:
+            decimal = int(self.campo.value)
+            if base == 3:
+                resultado = self.convertir_terciario(decimal)
+            elif base == 4:
+                resultado = self.convertir_cuaternario(decimal)
+            else:
+                resultado = "Base no válida"
+
+            self.resultado.value = resultado
+            self.page.update()
+        except ValueError:
+            self.resultado.value = "Por favor, ingrese un número entero válido."
+            self.page.update()
+
+
+def main(page: ft.Page):
+    ConvertidorNumeros(page)
+
 
 ft.app(main)
